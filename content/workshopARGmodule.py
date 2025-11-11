@@ -320,7 +320,7 @@ WB1_base["Q17.json"] = [{
         {"answer": "Decreased", "correct": false},
         {"answer": "Stayed the same", "correct": true, "feedback": "Correct: we have not deleted any nodes from the ARG, simply bypassed them if they appear unary in a local tree"}
     ]}, {
-    "question": "Compared to the partially simplified ARG, has the number of MUTATIONS in the fully simplified ARG increased, decreased, or stayed the same??",
+    "question": "Compared to the partially simplified ARG, has the number of MUTATIONS in the fully simplified ARG increased, decreased, or stayed the same?",
     "type": "many_choice",
     "answers": [
         {"answer": "Increased", "correct": false},
@@ -585,7 +585,10 @@ select "Clear Browser Data" from the JupyterLite help menu.
         tables.edges.squash()
         return tables.tree_sequence()
 
-class Workbook1(Workbook):
+class Workbook1A(Workbook):
+    url = WB1_base  # Put the real URL base string (ending in "/") here, once JSON question files have been made available at that URL
+
+class Workbook1B(Workbook):
     url = WB1_base  # Put the real URL base string (ending in "/") here, once JSON question files have been made available at that URL
 
     @classmethod
