@@ -381,19 +381,34 @@ WB1_base["Q22.json"] = [{
 }]
 
 WB1_base["Q23.json"] = [{
-    "question": "what percentage of the nodes in the 10 Mb full ARG are unknowable, to the nearest percent?",
+    "question": "What percentage of the nodes in the 10 Mb full ARG are unknowable, to the nearest percent?",
     "type": "numeric",
     "answers": [
         {"type": "value", "value": 0, "correct": true},
         {"type": "default"}
     ]}, {
-    "question": "how much space does the 10Mb full ARG take up, to the nearest Mb?",
+    "question": "How much space does the 10Mb full ARG take up, to the nearest Mb?",
     "type": "numeric",
     "answers": [
         {"type": "value", "value": 0, "correct": true},
         {"type": "default"}
     ]}, {
     "question": "How many trees are there in the huge ARG?",
+    "type": "numeric",
+    "answers": [
+        {"type": "value", "value": 0, "correct": true},
+        {"type": "default"}
+    ]
+}]
+
+WB1_base["Q24.json"] = [{
+    "question": "How much space does the fully-simplified ARG take up, to the nearest Mb?",
+    "type": "numeric",
+    "answers": [
+        {"type": "value", "value": 0, "correct": true},
+        {"type": "default"}
+    ]}, {
+    "question": "How many trees does it have?",
     "type": "numeric",
     "answers": [
         {"type": "value", "value": 0, "correct": true},
@@ -592,20 +607,27 @@ class Workbook1(Workbook):
         n_diploids=10
         genome_length=10_000_000  # bp
 
-        largest_arg = msprime.sim_ancestry(
-            samples={"AFR": n_diploids/2, "EUR": n_diploids/2},
-            recombination_rate=1.15e-08,
-            sequence_length=genome_length,
-            demography=msprime_demography_object,
-            record_full_arg=True,
-            random_seed=321
-        )
-        non_coal = cls.node_coalescence_status(largest_arg) == 0
-        p = (sum(non_coal)-largest_arg.num_samples)/(len(non_coal) - largest_arg.num_samples)
+        
+        for record_full_arg in [True, False]:
+            largest_arg = msprime.sim_ancestry(
+                samples={"AFR": n_diploids/2, "EUR": n_diploids/2},
+                recombination_rate=1.15e-08,
+                sequence_length=genome_length,
+                demography=msprime_demography_object,
+                record_full_arg=record_full_arg,
+                coalescing_segments_only=None if record_full_arg else False,
+                random_seed=321
+            )
+            if record_full_arg:
+                non_coal = cls.node_coalescence_status(largest_arg) == 0
+                p = (sum(non_coal)-largest_arg.num_samples)/(len(non_coal) - largest_arg.num_samples)
 
-        # Hack in the correct answers
-        cls.url["Q23.json"][0]["answers"][0]["value"] = int(round(p * 100))
-        cls.url["Q23.json"][1]["answers"][0]["value"] = int(round(largest_arg.nbytes * 1e-6))
-        cls.url["Q23.json"][2]["answers"][0]["value"] = largest_arg.num_trees
+                # Hack in the correct answers
+                cls.url["Q23.json"][0]["answers"][0]["value"] = int(round(p * 100))
+                cls.url["Q23.json"][1]["answers"][0]["value"] = int(round(largest_arg.nbytes * 1e-6))
+                cls.url["Q23.json"][2]["answers"][0]["value"] = largest_arg.num_trees
+            else:
+                cls.url["Q24.json"][0]["answers"][0]["value"] = int(round(largest_arg.nbytes * 1e-6))
+                cls.url["Q24.json"][1]["answers"][1]["value"] = largest_arg.num_trees
 
         super().setup()
