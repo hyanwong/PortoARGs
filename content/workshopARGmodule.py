@@ -346,6 +346,28 @@ WB1_base["Q19.json"] = [{
 }]
 
 WB1_base["Q20.json"] = [{
+    "question": "Does this ARG with polytomies encode the same genetic data?",
+    "type": "many_choice",
+    "answers": [
+        {"answer": "Yes: there is no change to the genetic data encoded", "correct": true},
+        {"answer": "No", "correct": false},
+        {"answer": "Sometimes", "correct": false},
+    ]
+}]
+
+WB1_base["Q21.json"] = [{
+    "question": "By looking at the provenance commands, which simulation software was used to make this ARG?",
+    "type": "many_choice",
+    "answers": [
+        {"answer": "msprime", "correct": true},
+        {"answer": "SLiM", "correct": false},
+        {"answer": "fwdpy11", "correct": false},
+        {"answer": "simuPOP", "correct": false},
+        {"answer": "ms", "correct": false},
+    ]
+}]
+
+WB1_base["Q22.json"] = [{
     "question": "From the log time plot, from when (in generations ago) does the exponential growth phase in both populations start model start, according to this model?",
     "type": "numeric",
     "answers": [
