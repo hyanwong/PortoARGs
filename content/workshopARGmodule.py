@@ -1,9 +1,12 @@
 import collections
 import itertools
+import pickle
 import sys
-import numpy as np
-from IPython.display import HTML
 
+import msprime
+import numpy as np
+import tskit
+from IPython.display import HTML
 
 ### Hack below - can be removed when questions are saved to JSON files named Q1.json, Q2.json etc
 # This allows answers to be hidden from the casual viewer. Then we can simply set the url to a string instead of a class
@@ -363,7 +366,8 @@ WB1_base["Q21.json"] = [{
         {"answer": "SLiM", "correct": false},
         {"answer": "fwdpy11", "correct": false},
         {"answer": "simuPOP", "correct": false},
-        {"answer": "ms", "correct": false},
+        {"answer": "scrm", "correct": false},
+        {"answer": "fastsimcoal2", "correct": false},
     ]
 }]
 
@@ -376,6 +380,26 @@ WB1_base["Q22.json"] = [{
     ]
 }]
 
+WB1_base["Q23.json"] = [{
+    "question": "what percentage of the nodes in the 10 Mb full ARG are unknowable, to the nearest percent?",
+    "type": "numeric",
+    "answers": [
+        {"type": "value", "value": 0, "correct": true},
+        {"type": "default"}
+    ]}, {
+    "question": "how much space does the 10Mb full ARG take up, to the nearest Mb?",
+    "type": "numeric",
+    "answers": [
+        {"type": "value", "value": 0, "correct": true},
+        {"type": "default"}
+    ]}, {
+    "question": "How many trees are there in the huge ARG?",
+    "type": "numeric",
+    "answers": [
+        {"type": "value", "value": 0, "correct": true},
+        {"type": "default"}
+    ]
+}]
 
 WB1_base["Q25.json"] = [{
     "question": "Which of these random placement methods is most appropriate for choosing a node above which to place a neutral mutation?",
@@ -548,3 +572,40 @@ select "Clear Browser Data" from the JupyterLite help menu.
 
 class Workbook1(Workbook):
     url = WB1_base  # Put the real URL base string (ending in "/") here, once JSON question files have been made available at that URL
+
+    @classmethod
+    def setup(cls):
+        # Run the simulation for Q22 and Q23, so that we get the right answers
+        arg = tskit.load("data/example_ARG.trees")
+
+        try:
+            # This requires msprime >= 1.3.5, not yet on pyodide
+            cmd, parameters = msprime.provenance.parse_provenance(arg.provenance(0), arg)
+            assert cmd == "sim_ancestry"  # just check we have the right (zeroth) provenance entry
+        except ValueError:
+            # Hack the workbook for older msprime versions
+            with open("data/msprime_param_hack.pkl", 'rb') as picklefile:
+                parameters = pickle.load(picklefile)
+
+        msprime_demography_object = parameters["demography"]
+
+        n_diploids=10
+        genome_length=10_000_000  # bp
+
+        largest_arg = msprime.sim_ancestry(
+            samples={"AFR": n_diploids/2, "EUR": n_diploids/2},
+            recombination_rate=1.15e-08,
+            sequence_length=genome_length,
+            demography=msprime_demography_object,
+            record_full_arg=True,
+            random_seed=321
+        )
+        non_coal = cls.node_coalescence_status(largest_arg) == 0
+        p = (sum(non_coal)-largest_arg.num_samples)/(len(non_coal) - largest_arg.num_samples)
+
+        # Hack in the correct answers
+        cls.url["Q23.json"][0]["answers"][0]["value"] = int(round(p * 100))
+        cls.url["Q23.json"][1]["answers"][0]["value"] = int(round(largest_arg.nbytes * 1e-6))
+        cls.url["Q23.json"][2]["answers"][0]["value"] = largest_arg.num_trees
+
+        super().setup()
