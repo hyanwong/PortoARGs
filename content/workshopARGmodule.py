@@ -153,8 +153,8 @@ WB1_base["Q9.json"] = [{
     "question": "In the ARG above, what mutation groups together samples 7, 8, and 9?",
     "type": "many_choice",
     "answers": [
-        {"answer": "C mutates to T at position 215", "correct": true},
-        {"answer": "T mutates to C at position 215", "correct": false, "feedback": "You have the position right, but the derived state is T."},
+        {"answer": "C mutates to A at position 215", "correct": true},
+        {"answer": "A mutates to C at position 215", "correct": false, "feedback": "You have the position right, but the derived state is A."},
         {"answer": "G mutates to T at position 92", "correct": false},
         {"answer": "C mutates to G at position 560", "correct": false}
     ]}, {
