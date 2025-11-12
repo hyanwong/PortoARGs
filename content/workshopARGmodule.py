@@ -670,7 +670,11 @@ class Workbook1B(Workbook):
                 cls.url["Q24.json"][1]["answers"][0]["value"] = largest_arg.num_trees
 
         slim_arg = tszip.load("data/SLiM_sim.tsz")
-        coalesced_arg = pyslim.recapitate(slim_arg, recombination_rate=1e-8, ancestral_Ne=200, random_seed=5)
+        try:
+            coalesced_arg = pyslim.recapitate(slim_arg, recombination_rate=1e-8, ancestral_Ne=200, random_seed=5)
+        except ValueError:
+            cls.url["28.json"][0]["question"]= "Cannot compute answer: pyslim recapitulation not supported in this msprime version."
+            pass
         mutated_slim_sim = msprime.sim_mutations(coalesced_arg, rate=1e-8, random_seed=123)
         cls.url["28.json"][0]["answers"][0]["value"] = mutated_slim_sim.num_mutations
 
