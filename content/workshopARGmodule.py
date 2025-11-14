@@ -671,7 +671,10 @@ class Workbook1B(Workbook):
 
         slim_arg = tszip.load("data/SLiM_sim.tsz")
         try:
-            coalesced_arg = pyslim.recapitate(slim_arg, recombination_rate=1e-8, ancestral_Ne=200, random_seed=5)
+            import warnings 
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                coalesced_arg = pyslim.recapitate(slim_arg, recombination_rate=1e-8, ancestral_Ne=200, random_seed=5)
         except ValueError:
             cls.url["Q28.json"][0]["question"]= "Cannot compute answer: pyslim recapitulation not supported in this msprime version."
             pass
